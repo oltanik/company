@@ -6,14 +6,14 @@
 3. Вывести имена всех сотрудников компании с указанием отдела, в котором они работают. +
 4. Вывести имена всех сотрудников компании, которые получают больше 100к. +
 5. Вывести позиции, на которых люди получают меньше 80к (можно с повторениями). +
-6. Посчитать, сколько денег в месяц уходит на каждый отдел – и вывести вместе с названием отдела
+6. Посчитать, сколько денег в месяц уходит на каждый отдел – и вывести вместе с названием отдела +
 Второй уровень:
-7. Вывести названия отделов с указанием минимальной зарплаты в нём.
-8. Вывести названия отделов с указанием минимальной, средней и максимальной зарплаты в нём.
-9. Вывести среднюю зарплату по всей компании.
-10. Вывести названия должностей, которые получают больше 90к без повторений.
-11. Посчитать среднюю зарплату по каждому отделу среди девушек (их зовут Мишель, Николь, Кристина и Кейтлин).
-12. Вывести без повторений имена людей, чьи фамилии заканчиваются на гласную букву.
+7. Вывести названия отделов с указанием минимальной зарплаты в нём. +
+8. Вывести названия отделов с указанием минимальной, средней и максимальной зарплаты в нём. +
+9. Вывести среднюю зарплату по всей компании. +
+10. Вывести названия должностей, которые получают больше 90к без повторений. +
+11. Посчитать среднюю зарплату по каждому отделу среди девушек (их зовут Мишель, Николь, Кристина и Кейтлин). +
+12. Вывести без повторений имена людей, чьи фамилии заканчиваются на гласную букву.+
 Третий уровень:
 Теперь вам пригодится ещё список taxes, в котором хранится информация о налогах на сотрудников из разных департаметов.
 Если department None, значит, этот налог применяется ко всем сотрудникам компании.
@@ -53,6 +53,76 @@ taxes = [
     {"department": "BizDev Department", "name": "sales", "value_percents": 20},
 ]
 
+
+def last_name_vowel(departments):
+    last_name_vowel_final = set()
+    for department in departments:
+        for employers_info in department['employers']:
+            if employers_info['last_name'][-1] in 'a, e, i, o, u, y':
+                last_name_vowel_final.add(employers_info['first_name'])
+    return last_name_vowel_final
+
+def salary_women(departments):
+    salary_women_dep = []
+    for departmen in departments:
+        dep = ''
+        count_women = 0
+        salary_women = 0
+        for employers_info in departmen['employers']:
+            if employers_info['first_name'] in "Michelle, Nicole":
+                count_women += 1
+                salary_women += employers_info['salary_rub']
+                dep = departmen['title']
+        salary_women_dep.append((dep, int(salary_women/count_women) ))
+    return salary_women_dep
+
+
+def position_ninety(departments):
+    list_pos_ninety = set()
+    for employers in departments:
+        for employers_info in employers['employers']:
+            if employers_info['salary_rub'] > 90000:
+                list_pos_ninety.add(employers_info['position'])
+    return list_pos_ninety
+
+def aver_salary_company(departments):
+    money_max = 0
+    count_employers = 0
+    for employers in departments:
+        for employers_info in employers['employers']:
+            money_max += employers_info['salary_rub']
+            count_employers += 1
+    return int(money_max/count_employers)
+
+def min_aver_max_salary(departments):
+    dep_money = []
+    for employers in departments:
+        title = employers['title']
+        money_min = 0
+        money_all = 0
+        money_max = 0
+        count_employers = 0
+        for employers_info in employers['employers']:
+            if money_min == 0 or money_min > employers_info['salary_rub']:
+                money_min = employers_info['salary_rub']
+            if money_max == 0 or money_max < employers_info['salary_rub']:
+                money_max = employers_info['salary_rub']
+            money_all += employers_info['salary_rub']
+            count_employers += 1
+        dep_money.append(f'{title}: минимальная зарплата в отделе: {money_min}, средняя зарплата по отделу: {int(money_all/count_employers)}, максимальная зарплата в отделе: {money_max}.')
+    return dep_money    
+
+def min_salary(departments):
+    dep_money = []
+    for employers in departments:
+        title = employers['title']
+        money = 0
+        for employers_info in employers['employers']:
+            if money == 0 or money > employers_info['salary_rub']:
+                money = employers_info['salary_rub']
+        dep_money.append(f'{title}: {money}')
+    return dep_money
+
 def money_position(departments):
     dep_money = []
     for employers in departments:
@@ -60,16 +130,16 @@ def money_position(departments):
         money = 0
         for employers_info in employers['employers']:
             money += employers_info['salary_rub']
-        dep_money.append(f'{title}: {money}')
+        dep_money.append((title, money))
     return dep_money
 
 def position(departments):
-    job_title = []
+    job_title = set()
     for employers in departments:
         for employers_info in employers['employers']:
             if employers_info['salary_rub'] < 80000:
-                job_title.append(employers_info['position'])
-    return set(job_title)
+                job_title.add(employers_info['position'])
+    return job_title
 
 def dearest_employrs(departments):
     name_dearest_employrs = []
@@ -81,25 +151,20 @@ def dearest_employrs(departments):
 
 def names_departmens_employ(departments):
     name_dep_empl = []
-    for employers in departments:
-        depart = employers['title']
-        for employers_info in employers['employers']:
+    for department in departments:
+        depart = department['title']
+        for employers_info in department['employers']:
             name = employers_info['first_name']
             name_dep_empl.append(f'{depart} - {name}')
-    return (name_dep_empl)
+    return name_dep_empl
         
 def names_employees(departments):
-    names = []
-    for employers in departments:
-        for employers_info in employers['employers']:
-            names.append(employers_info['first_name'])
+    names = [employers_info['first_name'] for department in departments for employers_info in department['employers']]
     return names
     
 
 def names_dep(departments):
-    name_departments = []
-    for name_dep in departments:
-        name_departments.append(name_dep['title'])
+    name_departments = [department['title'] for department in departments]
     return name_departments
 
 if __name__=='__main__':
@@ -108,4 +173,10 @@ if __name__=='__main__':
     print('Сторудники деляться по отделам:', ', '.join(names_departmens_employ(departments)))
     print('Имена сотрудников с зарплатой больше 100000:', ', '.join(dearest_employrs(departments)))
     print('Должности у которых зарплата меньше 80000:', ', '.join(position(departments)))
-    print('Общая сумма зарплат по отделам в месяц:', ', '.join(money_position(departments)))
+    print(f'Общая сумма зарплат по отделам в месяц:\n', '\n'.join(f'{res[0]!r} salary: {res[1]}' for res in money_position(departments)))
+    print('Минимальная зарплата в отдела:', ', '.join(min_salary(departments)))
+    print(*min_aver_max_salary(departments))
+    print(f'Средняя зарплата по всей компании: {aver_salary_company(departments)}')
+    print('Должности у которых зарплата больше 90000:', ', '.join(position_ninety(departments)))
+    print(f'Средняя заплата девушек по отделам компании:\n', '\n'.join(f'Отдел: {res[0]!r}, средняя зарплата: {res[1]}' for res in salary_women(departments)))
+    print(', '.join(last_name_vowel(departments)))
