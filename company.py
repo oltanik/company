@@ -53,27 +53,54 @@ taxes = [
     {"department": "BizDev Department", "name": "sales", "value_percents": 20},
 ]
 
+'13. Вывести список отделов со средним налогом на сотрудников этого отдела.'
+
+def average_tax(departments, taxes):
+    aver_tax_company = {}
+    for department in departments:
+        tax_dep = taxes[0]['value_percents']
+        sum_salary = 0 # сумма всех зарплат отдела
+        count_employers = len(department['employers']) # количество сотрудников в отделе
+        department_name = department['title']
+        for employers_info in department['employers']:
+            salary = employers_info['salary_rub'] # зарплата каждого сотрудника
+            sum_salary += salary # считаем сумму всех зарплат отдела
+        try:
+            for tax in taxes:
+                if department_name in tax['department'] and tax['department'] is not None:
+        except TypeError:
+                    tax_dep += tax['value_percents']
+        aver_tax = (sum_salary * (tax_dep/100))/ count_employers # средня сумма налога на отдел
+        aver_tax_company[department_name] = aver_tax
+    return aver_tax_company
+
+
+
+print(average_tax(departments, taxes))
+
 
 def last_name_vowel(departments):
     last_name_vowel_final = set()
     for department in departments:
         for employers_info in department['employers']:
-            if employers_info['last_name'][-1] in 'a, e, i, o, u, y':
+            if employers_info['last_name'][-1] in 'aeiouy':
                 last_name_vowel_final.add(employers_info['first_name'])
     return last_name_vowel_final
 
 def salary_women(departments):
     salary_women_dep = []
+    name_women = ("Michelle","Nicole", "Christina", "Caitlin")
     for departmen in departments:
-        dep = ''
+        dep = None
         count_women = 0
         salary_women = 0
         for employers_info in departmen['employers']:
-            if employers_info['first_name'] in "Michelle, Nicole":
+            if employers_info['first_name'] in name_women:
                 count_women += 1
                 salary_women += employers_info['salary_rub']
                 dep = departmen['title']
-        salary_women_dep.append((dep, int(salary_women/count_women) ))
+        if count_women > 0:
+            salary_women_dep.append((dep, int(salary_women/count_women) ))
     return salary_women_dep
 
 
@@ -86,13 +113,13 @@ def position_ninety(departments):
     return list_pos_ninety
 
 def aver_salary_company(departments):
-    money_max = 0
+    money_sum = 0
     count_employers = 0
     for employers in departments:
+        count_employers += len(employers['employers'])
         for employers_info in employers['employers']:
-            money_max += employers_info['salary_rub']
-            count_employers += 1
-    return int(money_max/count_employers)
+            money_sum += employers_info['salary_rub']
+    return int(money_sum/count_employers)
 
 def min_aver_max_salary(departments):
     dep_money = []
@@ -101,14 +128,14 @@ def min_aver_max_salary(departments):
         money_min = 0
         money_all = 0
         money_max = 0
-        count_employers = 0
+        count_employers = len(employers['employers'])
         for employers_info in employers['employers']:
-            if money_min == 0 or money_min > employers_info['salary_rub']:
-                money_min = employers_info['salary_rub']
-            if money_max == 0 or money_max < employers_info['salary_rub']:
-                money_max = employers_info['salary_rub']
-            money_all += employers_info['salary_rub']
-            count_employers += 1
+            employer_salary = employers_info['salary_rub']
+            if money_min == 0 or money_min > employer_salary:
+                money_min = employer_salary
+            if money_max == 0 or money_max < employer_salary:
+                money_max = employer_salary
+            money_all += employer_salary
         dep_money.append(f'{title}: минимальная зарплата в отделе: {money_min}, средняя зарплата по отделу: {int(money_all/count_employers)}, максимальная зарплата в отделе: {money_max}.')
     return dep_money    
 
@@ -167,16 +194,16 @@ def names_dep(departments):
     name_departments = [department['title'] for department in departments]
     return name_departments
 
-if __name__=='__main__':
-    print('В нашей компании есть отделы:',', '.join(names_dep(departments)))
-    print('В нашей компании работают сотрудники с именами:', ', '.join(names_employees(departments)))
-    print('Сторудники деляться по отделам:', ', '.join(names_departmens_employ(departments)))
-    print('Имена сотрудников с зарплатой больше 100000:', ', '.join(dearest_employrs(departments)))
-    print('Должности у которых зарплата меньше 80000:', ', '.join(position(departments)))
-    print(f'Общая сумма зарплат по отделам в месяц:\n', '\n'.join(f'{res[0]!r} salary: {res[1]}' for res in money_position(departments)))
-    print('Минимальная зарплата в отдела:', ', '.join(min_salary(departments)))
-    print(*min_aver_max_salary(departments))
-    print(f'Средняя зарплата по всей компании: {aver_salary_company(departments)}')
-    print('Должности у которых зарплата больше 90000:', ', '.join(position_ninety(departments)))
-    print(f'Средняя заплата девушек по отделам компании:\n', '\n'.join(f'Отдел: {res[0]!r}, средняя зарплата: {res[1]}' for res in salary_women(departments)))
-    print(', '.join(last_name_vowel(departments)))
+#if __name__=='__main__':
+    #print('В нашей компании есть отделы:',', '.join(names_dep(departments)))
+    #print('В нашей компании работают сотрудники с именами:', ', '.join(names_employees(departments)))
+    #print('Сторудники деляться по отделам:', ', '.join(names_departmens_employ(departments)))
+    #print('Имена сотрудников с зарплатой больше 100000:', ', '.join(dearest_employrs(departments)))
+    #print('Должности у которых зарплата меньше 80000:', ', '.join(position(departments)))
+    #print(f'Общая сумма зарплат по отделам в месяц:\n', '\n'.join(f'{res[0]!r} salary: {res[1]}' for res in money_position(departments)))
+    #print('Минимальная зарплата в отдела:', ', '.join(min_salary(departments)))
+    #print(*min_aver_max_salary(departments))
+    #print(f'Средняя зарплата по всей компании: {aver_salary_company(departments)}')
+    #print('Должности у которых зарплата больше 90000:', ', '.join(position_ninety(departments)))
+    #print(f'Средняя заплата девушек по отделам компании:\n', '\n'.join(f'Отдел: {res[0]!r}, средняя зарплата: {res[1]}' for res in salary_women(departments)))
+    #print(', '.join(last_name_vowel(departments)))
