@@ -19,8 +19,8 @@
 Если department None, значит, этот налог применяется ко всем сотрудникам компании.
 Иначе он применяется только к сотрудникам департмента, название которого совпадает с тем, что записано по ключу department.
 К одному сотруднику может применяться несколько налогов.
-13. Вывести список отделов со средним налогом на сотрудников этого отдела.
-14. Вывести список всех сотредников с указанием зарплаты "на руки" и зарплаты с учётом налогов.
+13. Вывести список отделов со средним налогом на сотрудников этого отдела. +
+14. Вывести список всех сотредников с указанием зарплаты "на руки" и зарплаты с учётом налогов. +
 15. Вывести список отделов, отсортированный по месячной налоговой нагрузки.
 16. Вывести всех сотрудников, за которых компания платит больше 100к налогов в год.
 17. Вывести имя и фамилию сотрудника, за которого компания платит меньше всего налогов.
@@ -53,30 +53,47 @@ taxes = [
     {"department": "BizDev Department", "name": "sales", "value_percents": 20},
 ]
 
-'13. Вывести список отделов со средним налогом на сотрудников этого отдела.'
+
+
+
+def list_employers_after_taxes(departments, taxes):
+    list_employers_after_tax = []
+    for department in departments:
+        for employers_info in department['employers']:
+            salary = employers_info['salary_rub']
+            name, last_name = employers_info['first_name'], employers_info['last_name']
+            for tax in taxes:
+                if tax['department'] is not None and tax['department'].lower() == department['title'].lower():
+                    tax_hiring = tax_vat + tax['value_percents']
+                    salary_tax = salary - (salary * (tax_hiring/100))
+                    list_employers_after_tax.append(f'{name} {last_name} получает на руки: {salary_tax}, зарплата без вычета налогов: {salary}') 
+                elif tax['department'] is None and department['title'].lower() != "IT Department".lower():
+                    tax_vat = tax['value_percents']
+                    salary_tax = salary - (salary * (tax_vat/100))
+                    list_employers_after_tax.append(f'{name} {last_name} получает на руки: {salary_tax}, зарплата без вычета налогов: {salary}')
+    return list_employers_after_tax
+
+
+
+
 
 def average_tax(departments, taxes):
     aver_tax_company = {}
     for department in departments:
-        tax_dep = taxes[0]['value_percents']
-        sum_salary = 0 # сумма всех зарплат отдела
-        count_employers = len(department['employers']) # количество сотрудников в отделе
         department_name = department['title']
+        tax_dep = taxes[0]['value_percents']
+        sum_salary = 0
+        count_employers = len(department['employers'])
+        for tax in taxes:
+            if tax['department'] is not None and department_name.lower() == tax['department'].lower():
+                tax_dep += tax['value_percents']
         for employers_info in department['employers']:
-            salary = employers_info['salary_rub'] # зарплата каждого сотрудника
-            sum_salary += salary # считаем сумму всех зарплат отдела
-        try:
-            for tax in taxes:
-                if department_name in tax['department'] and tax['department'] is not None:
-        except TypeError:
-                    tax_dep += tax['value_percents']
-        aver_tax = (sum_salary * (tax_dep/100))/ count_employers # средня сумма налога на отдел
+            salary = employers_info['salary_rub']
+            sum_salary += salary
+        aver_tax = (sum_salary * (tax_dep/100))/ count_employers
         aver_tax_company[department_name] = aver_tax
     return aver_tax_company
 
-
-
-print(average_tax(departments, taxes))
 
 
 def last_name_vowel(departments):
@@ -207,3 +224,5 @@ def names_dep(departments):
     #print('Должности у которых зарплата больше 90000:', ', '.join(position_ninety(departments)))
     #print(f'Средняя заплата девушек по отделам компании:\n', '\n'.join(f'Отдел: {res[0]!r}, средняя зарплата: {res[1]}' for res in salary_women(departments)))
     #print(', '.join(last_name_vowel(departments)))
+    #print(f'Средняя сумма налогов по отделам: \n', '\n'.join(f'Отдел: {res}, средний налог: {res1}' for res, res1 in average_tax(departments, taxes).items()))
+    #print('\n'.join(list_employers_after_taxes(departments, taxes)))
